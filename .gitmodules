@@ -1,0 +1,12 @@
+[submodule "hdbi"]
+	path = hdbi
+	url = git@github.com:s9gf4ult/hdbi.git
+[submodule "hdbi-postgresql"]
+	path = hdbi-postgresql
+	url = git@github.com:s9gf4ult/hdbi-postgresql.git
+[submodule "hdbi-sqlite"]
+	path = hdbi-sqlite
+	url = git@github.com:s9gf4ult/hdbi-sqlite.git
+[submodule "hdbi-tests"]
+	path = hdbi-tests
+	url = git@github.com:s9gf4ult/hdbi-tests.git
