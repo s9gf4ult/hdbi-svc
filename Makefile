@@ -6,9 +6,9 @@ SHELL:=/bin/bash
 DRIVERDEPS := hdbi hdbi-tests
 DRIVERS := hdbi-postgresql hdbi-sqlite
 ALL := $(DRIVERDEPS) $(DRIVERS)
-DEPFLAGS := --enable-tests
-CONFLAGS := --enable-tests
-
+DEPFLAGS := --enable-tests -p
+CONFLAGS := --enable-tests -p --enable-executable-profiling
+POSTGRECONNECTION := "user=test dbname=test"
 
 BUILD_DEPS:=$(patsubst %, %_deps, $(ALL))
 CLEAN:=$(patsubst %, %_clean, $(ALL))
@@ -44,22 +44,32 @@ $(RETEST): %_retest : %_addsrc
 
 RETEST_REST := 	rm -rf dist && \
 	cabal-dev configure $(CONFLAGS) && \
-	cabal-dev build && \
-	cabal-dev test
+	cabal-dev build
 
 hdbi_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	$(RETEST_REST)
+	$(RETEST_REST) && \
+	dist/build/sqlvalues/sqlvalues && \
+	dist/build/dummydriver/dummydriver
 
 hdbi-tests_retest:
 	cd $(patsubst %_retest, %, $@) && \
 	cabal-dev install --reinstall hdbi && \
-	$(RETEST_REST)
+	$(RETEST_REST) && \
+	cabal-dev test
 
-$(patsubst %, %_retest, $(DRIVERS)):
+hdbi-sqlite_retest:
 	cd $(patsubst %_retest, %, $@) && \
 	cabal-dev install --reinstall hdbi hdbi-tests && \
-	$(RETEST_REST)
+	$(RETEST_REST) && \
+	dist/build/runtests/runtests
+
+hdbi-postgresql_retest:
+	cd $(patsubst %_retest, %, $@) && \
+	cabal-dev install --reinstall hdbi hdbi-tests && \
+	$(RETEST_REST) && \
+	dist/build/runtests/runtests $(POSTGRECONNECTION) && \
+	dist/build/puretests/puretests
 
 retest: $(RETEST)
 
