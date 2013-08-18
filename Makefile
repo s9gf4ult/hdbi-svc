@@ -54,24 +54,26 @@ hdbi_retest:
 
 hdbi-tests_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	cabal-dev install --reinstall hdbi && \
+	cabal-dev install --reinstall $(DEPFLAGS) hdbi && \
 	$(RETEST_REST) && \
 	cabal-dev test
 
 hdbi-sqlite_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	cabal-dev install --reinstall hdbi hdbi-tests && \
+	cabal-dev install --reinstall $(DEPFLAGS) hdbi hdbi-tests && \
 	$(RETEST_REST) && \
 	dist/build/runtests/runtests
 
 hdbi-postgresql_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	cabal-dev install --reinstall hdbi hdbi-tests && \
+	cabal-dev install --reinstall $(DEPFLAGS) hdbi hdbi-tests && \
 	$(RETEST_REST) && \
 	dist/build/runtests/runtests $(POSTGRECONNECTION) && \
 	dist/build/puretests/puretests
 
 retest: $(RETEST)
+
+retest-drivers: $(patsubst %, %_retest, $(DRIVERS))
 
 
 .PHONY: install-deps $(BTARGETS) \
