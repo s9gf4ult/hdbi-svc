@@ -10,3 +10,6 @@
 [submodule "hdbi-tests"]
 	path = hdbi-tests
 	url = git@github.com:s9gf4ult/hdbi-tests.git
+[submodule "hdbi-conduit"]
+	path = hdbi-conduit
+	url = git@github.com:s9gf4ult/hdbi-conduit.git

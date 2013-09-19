@@ -5,7 +5,8 @@ SHELL:=/bin/bash
 
 DRIVERDEPS := hdbi hdbi-tests
 DRIVERS := hdbi-postgresql hdbi-sqlite
-ALL := $(DRIVERDEPS) $(DRIVERS)
+AUXILIARY := hdbi-conduit
+ALL := $(DRIVERDEPS) $(DRIVERS) $(AUXILIARY)
 GHC_OPTIONS := --ghc-options="-threaded"
 DEPFLAGS := --enable-tests $(GHC_OPTIONS)
 CONFLAGS := --enable-tests $(GHC_OPTIONS)
@@ -35,10 +36,15 @@ hdbi-tests_addsrc:
 	cd hdbi-tests && \
 	cabal-dev add-source ../hdbi
 
+hdbi-conduit_addsrc:
+	cd hdbi-conduit && \
+	cabal-dev add-source ../hdbi
+
 $(patsubst %, %_addsrc, $(DRIVERS)):
 	cd $(patsubst %_addsrc, %, $@) && \
 	cabal-dev add-source ../hdbi && \
 	cabal-dev add-source ../hdbi-tests
+
 
 add-source: $(ADD_SOURCE)
 
@@ -55,6 +61,12 @@ hdbi_retest:
 	dist/build/dummydriver/dummydriver $(RTSOPTS)
 
 hdbi-tests_retest:
+	cd $(patsubst %_retest, %, $@) && \
+	cabal-dev install --reinstall $(DEPFLAGS) hdbi && \
+	$(RETEST_REST) && \
+	cabal-dev test
+
+hdbi-conduit_retest:
 	cd $(patsubst %_retest, %, $@) && \
 	cabal-dev install --reinstall $(DEPFLAGS) hdbi && \
 	$(RETEST_REST) && \
