@@ -38,7 +38,9 @@ hdbi-tests_addsrc:
 
 hdbi-conduit_addsrc:
 	cd hdbi-conduit && \
-	cabal-dev add-source ../hdbi
+	cabal-dev add-source ../hdbi && \
+	cabal-dev add-source ../hdbi-sqlite && \
+	cabal-dev add-source ../hdbi-tests
 
 $(patsubst %, %_addsrc, $(DRIVERS)):
 	cd $(patsubst %_addsrc, %, $@) && \
@@ -68,7 +70,7 @@ hdbi-tests_retest:
 
 hdbi-conduit_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	cabal-dev install --reinstall $(DEPFLAGS) hdbi && \
+	cabal-dev install --reinstall $(DEPFLAGS) hdbi hdbi-sqlite hdbi-tests && \
 	$(RETEST_REST) && \
 	cabal-dev test
 
