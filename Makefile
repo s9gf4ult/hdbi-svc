@@ -20,32 +20,37 @@ RETEST:=$(patsubst %, %_retest, $(ALL))
 
 $(BUILD_DEPS):
 	cd $(patsubst %_deps, %, $@) && \
-	cabal-dev install-deps $(DEPFLAGS)
+	cabal install --only-dependencies $(DEPFLAGS)
 
 install-deps: $(BUILD_DEPS)
 
 $(CLEAN):
 	cd $(patsubst %_clean, %, $@) && \
-	rm -rf dist cabal-dev
+	rm -rf dist .cabal-sandbox cabal.sandbox.config
 
 clean: $(CLEAN)
 
 hdbi_addsrc:
+	cd hdbi && \
+	cabal sandbox init
 
 hdbi-tests_addsrc:
 	cd hdbi-tests && \
-	cabal-dev add-source ../hdbi
+	cabal sandbox init && \
+	cabal sandbox add-source --snapshot ../hdbi
 
 hdbi-conduit_addsrc:
 	cd hdbi-conduit && \
-	cabal-dev add-source ../hdbi && \
-	cabal-dev add-source ../hdbi-sqlite && \
-	cabal-dev add-source ../hdbi-tests
+	cabal sandbox init && \
+	cabal sandbox add-source --snapshot ../hdbi && \
+	cabal sandbox add-source --snapshot ../hdbi-sqlite && \
+	cabal sandbox add-source --snapshot ../hdbi-tests
 
 $(patsubst %, %_addsrc, $(DRIVERS)):
 	cd $(patsubst %_addsrc, %, $@) && \
-	cabal-dev add-source ../hdbi && \
-	cabal-dev add-source ../hdbi-tests
+	cabal sandbox init && \
+	cabal sandbox add-source --snapshot ../hdbi && \
+	cabal sandbox add-source --snapshot ../hdbi-tests
 
 
 add-source: $(ADD_SOURCE)
@@ -53,8 +58,8 @@ add-source: $(ADD_SOURCE)
 $(RETEST): %_retest : %_addsrc
 
 RETEST_REST := 	rm -rf dist && \
-	cabal-dev configure $(CONFLAGS) && \
-	cabal-dev build
+	cabal configure $(CONFLAGS) && \
+	cabal build
 
 hdbi_retest:
 	cd $(patsubst %_retest, %, $@) && \
@@ -64,25 +69,25 @@ hdbi_retest:
 
 hdbi-tests_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	cabal-dev install --reinstall $(DEPFLAGS) hdbi && \
+	cabal install --reinstall $(DEPFLAGS) hdbi && \
 	$(RETEST_REST) && \
-	cabal-dev test
+	cabal test
 
 hdbi-conduit_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	cabal-dev install --reinstall $(DEPFLAGS) hdbi hdbi-sqlite hdbi-tests && \
+	cabal install --reinstall $(DEPFLAGS) hdbi hdbi-sqlite hdbi-tests && \
 	$(RETEST_REST) && \
-	cabal-dev test
+	cabal test
 
 hdbi-sqlite_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	cabal-dev install --reinstall $(DEPFLAGS) hdbi hdbi-tests && \
+	cabal install --reinstall $(DEPFLAGS) hdbi hdbi-tests && \
 	$(RETEST_REST) && \
 	dist/build/runtests/runtests -j1 $(RTSOPTS)
 
 hdbi-postgresql_retest:
 	cd $(patsubst %_retest, %, $@) && \
-	cabal-dev install --reinstall $(DEPFLAGS) hdbi hdbi-tests && \
+	cabal install --reinstall $(DEPFLAGS) hdbi hdbi-tests && \
 	$(RETEST_REST) && \
 	dist/build/runtests/runtests $(POSTGRECONNECTION) -j1 $(RTSOPTS) && \
 	dist/build/puretests/puretests $(RTSOPTS)
